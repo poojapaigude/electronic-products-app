@@ -1,0 +1,27 @@
+<app-header [displayLoginUser]="displayLoginUser" (changedTheme)='changedTheme($event)'></app-header>
+<div class="container" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <div class="row">
+            <h2 style="text-align:center">Login</h2>
+            <div class="col login">
+                <input tabindex="4" type="email" formControlName="username" placeholder="Username" required>
+                
+                <input tabindex="5" type="password" formControlName="password" placeholder="Password" required>
+                
+                <label *ngIf="invalid" [ngClass] = "'error'"> Please Enter Valid Email/Password </label>
+                <input tabindex="6" type="submit" value="Login">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="bottom-container">
+    <div class="row">
+        <div tabindex="7" class="col">
+            <a href="/" style="color:white" class="btn">Cancel</a>
+        </div>
+        <div tabindex="8"  class="col">
+            <a [routerLink]="['/register']" style="color:white" class="btn">Sign up</a>
+        </div>
+    </div>
+</div>
