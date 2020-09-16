@@ -123,6 +123,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "electronic-products-app"
+    }
+  },
+  "defaultProject": "electronic-products-app",
+  "cli": {
+    "analytics": "01e7d0dd-aff0-4d53-9f02-a9a9a7ed08f5"
+  }
 }
