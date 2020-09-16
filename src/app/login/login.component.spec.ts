@@ -7,6 +7,7 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HeaderComponent } from '../shared/components/header/header.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { By } from '@angular/platform-browser';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -40,8 +41,29 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should login', () => {
-    component.login();
+  it('should change theme on click', () => {
+    const isdarktheme = true;
+    component.changedTheme(isdarktheme);
     expect(component).toBeDefined();
   });
+
+  it('should set submitted to true', () => {
+    component.login();
+    expect(component.login).toBeTruthy();
+  });
+
+  it('should call login method', () => {
+    fixture.detectChanges();
+    spyOn(component, 'login');
+    ele = fixture.debugElement.query(By.css('button')).nativeElement;
+    ele.click();
+    expect(component.login).toHaveBeenCalledTimes(1);
+  });
+
+  it('should be valid form', () => {
+    component.loginForm.controls['username'].setValue('asdas@mfaid.com');
+    component.loginForm.controls['password'].setValue('test@213');
+    expect(component.loginForm.valid).toBeTruthy();
+  });
+
 });

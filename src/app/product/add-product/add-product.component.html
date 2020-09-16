@@ -1,8 +1,8 @@
 <app-header [displayLoginUser]="true" (changedTheme)='changedTheme($event)'></app-header>
 <div class="container-header" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
     <div>
-        <h4 style="width: 93%; float: left; margin-top: 10px;">Add Product</h4>
-        <button class="button" style="width: 7%; float: right;" aria-label="Go to listing" (click)="gotolisting()">
+        <h4 class="add-product">Add Product</h4>
+        <button class="button" aria-label="Go to listing" (click)="gotolisting()">
             Back
         </button>
     </div>
@@ -16,10 +16,6 @@
             <div class="col-80">
                 <input type="text" id="product-name" formControlName="productName" placeholder="Enter product name.."
                     required>
-                <div *ngIf="(productForm.productName.dirty || productForm.productName.untouched || productForm.productName.touched) && productForm.productName.invalid"
-                    class="alert-danger">
-                    <div *ngIf="productForm.productName.errors.required">Product name is required.</div>
-                </div>
             </div>
         </div>
         <div class="row">
@@ -28,7 +24,7 @@
             </div>
             <div class="col-80">
                 <textarea id="description" formControlName="description" placeholder="Write some description.."
-                    style="height:100px" required></textarea>
+                    required></textarea>
             </div>
         </div>
         <div class="row description">
@@ -43,8 +39,11 @@
                 </select>
             </div>
         </div>
+        <div class="alert-danger">
+            <div *ngIf="!addProductForm.valid">All fields are required</div>
+        </div>
         <div class="row">
-            <input class="button" type="submit" [disabled]="!addProductForm.valid">
+            <button class="button" [ngClass]="!addProductForm.valid ? 'disabled' : 'enabled' " type="submit" [disabled]="!addProductForm.valid">Submit</button>
         </div>
     </form>
 </div>

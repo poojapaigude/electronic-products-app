@@ -1,19 +1,19 @@
 <app-header [displayLoginUser]="true" (changedTheme)='changedTheme($event)'></app-header>
 <div class="electronic-listing" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
-    <div style="height: 20px;">
-        <h4 style="width: 10%; float: left; margin: 0;">Top Categories - </h4>
+    <div class="section-one">
+        <h4>Top Categories - </h4>
         <span>Cell Phones | TV | Samrt Devices | Audio | Laptops </span>
     </div>
 </div>
 <div class="electronic-listing" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
     <div>
-        <h4 style="width: 80%; float: left; margin: 0;">Electronic Products</h4>
-        <button *ngIf="isUserAuthenticated" class="button" style="float: right;" aria-label="Add new product" (click)="addProduct()">
+        <h4 class="heading-four">Electronic Products</h4>
+        <button *ngIf="isUserAuthenticated" class="button add-btn" aria-label="Add new product" (click)="addProduct()">
             Add Product
         </button>
     </div>
   
-    <table style="margin-top: 42px;" *ngIf="!nodatamsg">
+    <table>
         <thead>
             <tr>
                 <th>Product</th>
@@ -27,7 +27,7 @@
                 <td tabindex="0">{{ product.productName }}</td>
                 <td tabindex="0">{{ product.description }}</td>
                 <td tabindex="0">{{ product.category }}</td>
-                <td *ngIf="isUserAuthenticated" class="actions-buttons" style="text-align: center;">
+                <td *ngIf="isUserAuthenticated" class="actions-buttons">
                     <button tabindex="0" class="button" aria-label="Edit Product"
                         (click)="editAction(product.id)">
                         Edit
@@ -39,5 +39,5 @@
             </tr>
         </tbody>
     </table>
-    <div style="width: 100%; display: inline-block;" *ngIf="nodatamsg">No Data Available</div>
+    <div class="no-data" *ngIf="nodatamsg">No Data Available</div>
 </div>

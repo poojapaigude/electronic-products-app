@@ -23,12 +23,22 @@
     border-radius: 4px;
     cursor: pointer;
     float: right;
+    width: 7%;
   }
   
   .button:hover {
     background-color: #1976d2;
   }
   
+  .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  textarea {
+    height:100px
+  }
+
   .container {
     border-radius: 5px;
     background-color: #ffffff;
@@ -71,6 +81,13 @@
   .alert-danger {
       color: #ff0000;
   }
+
+  .add-product {
+    width: 93%;
+    float: left;
+    margin-top: 10px;
+  }
+
   /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
   @media screen and (max-width: 600px) {
     .col-25, .col-75, input[type=submit] {

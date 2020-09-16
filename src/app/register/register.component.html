@@ -2,7 +2,7 @@
 <div class="container" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
     <form [formGroup]="registerForm" (ngSubmit)="register()">
         <div class="row">
-            <h2 style="text-align:center">Sign Up</h2>
+            <h2>Sign Up</h2>
             <div class="col login">
                 <input tabindex="3" type="text" formControlName="name" placeholder="Enter Name.." required>
                 <input tabindex="4" type="email" [email]="true" formControlName="username" placeholder="Enter Username.." required>
@@ -10,7 +10,7 @@
                 <div *ngIf="registerForm.invalid && registerForm.touched && registerForm.dirty" [ngClass]="'error'">
                     Please Enter Valid Inputs
                 </div>
-                <input tabindex="6" type="submit" value="Register">
+                <button class="login-btn" tabindex="6" type="submit">Register</button>
             </div>
         </div>
     </form>

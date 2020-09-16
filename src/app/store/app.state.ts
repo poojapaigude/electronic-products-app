@@ -1,7 +1,7 @@
 import { createFeatureSelector } from '@ngrx/store';
 import { Products } from '../shared/models/products';
 import * as product from './products/prodcuts.reducer';
-import * as access from './user-access/auth.reducers';
+import * as access from './user-access/user.reducers';
 
 export interface AppState {
     authState: access.State;

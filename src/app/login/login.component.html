@@ -2,14 +2,12 @@
 <div class="container" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
     <form [formGroup]="loginForm" (ngSubmit)="login()">
         <div class="row">
-            <h2 style="text-align:center">Login</h2>
+            <h2>Login</h2>
             <div class="col login">
                 <input tabindex="4" type="email" formControlName="username" placeholder="Username" required>
-                
                 <input tabindex="5" type="password" formControlName="password" placeholder="Password" required>
-                
                 <label *ngIf="invalid" [ngClass] = "'error'"> Please Enter Valid Email/Password </label>
-                <input tabindex="6" type="submit" value="Login">
+                <button class="login-btn" tabindex="6" type="submit">Login</button>
             </div>
         </div>
     </form>
@@ -18,10 +16,10 @@
 <div class="bottom-container">
     <div class="row">
         <div tabindex="7" class="col">
-            <a href="/" style="color:white" class="btn">Cancel</a>
+            <a href="/" class="btn">Cancel</a>
         </div>
         <div tabindex="8"  class="col">
-            <a [routerLink]="['/register']" style="color:white" class="btn">Sign up</a>
+            <a [routerLink]="['/register']" class="btn">Sign up</a>
         </div>
     </div>
 </div>

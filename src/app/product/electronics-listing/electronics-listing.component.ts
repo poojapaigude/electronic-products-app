@@ -18,7 +18,7 @@ export class ElectronicsListingComponent implements OnInit {
   isUserAuthenticated = false;
   nodatamsg = true;
   isDarkTheme = false;
-  
+
   constructor(
     private store: Store<AppState>,
     private router: Router) {
@@ -58,7 +58,7 @@ export class ElectronicsListingComponent implements OnInit {
   editAction(id): void {
     this.router.navigateByUrl('edit/' + id);
   }
- 
+
   changedTheme(theme): void {
     this.isDarkTheme = theme;
   }

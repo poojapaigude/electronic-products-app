@@ -6,11 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'tavisca-assignment-v1-pp';
+  title = 'Trending electric products';
 
   constructor() {
-
   }
-
 
 }

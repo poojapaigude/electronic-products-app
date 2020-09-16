@@ -30,7 +30,7 @@ export class AccessEffects {
       this.router.navigateByUrl('/');
     })
   );
-  
+
   @Effect({ dispatch: false })
   LogInFail: Observable<any> = this.actions.pipe(
     ofType(AuthActionTypes.LOGIN_FAIL),

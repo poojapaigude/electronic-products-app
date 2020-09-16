@@ -10,7 +10,7 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ HeaderComponent ],
+      declarations: [HeaderComponent],
       imports: [
         FormsModule,
         ReactiveFormsModule,
@@ -27,6 +27,16 @@ describe('HeaderComponent', () => {
   });
 
   it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should change theme', () => {
+    const theme = true;
+    component.changeStatus(theme);
+    expect(component).toBeTruthy();
+  });
+  it('should remove storage', () => {
+    component.clearStorage();
     expect(component).toBeTruthy();
   });
 });

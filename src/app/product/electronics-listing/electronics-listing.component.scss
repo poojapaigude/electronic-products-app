@@ -4,7 +4,21 @@
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 10px;
+    .section-one {
+        height: 20px;
+        h4 {
+            width: 10%;
+            float: left;
+            margin: 0;
+        }
+    }
+    .heading-four {
+        width: 80%;
+        float: left;
+        margin: 0;
+    }
     table {
+        margin-top: 42px;
         thead {
             tr {
                 background: #e6e6ff;
@@ -20,6 +34,7 @@
                 }
                 .actions-buttons {
                     padding: 0.5rem;
+                    text-align: center;
                     .button { 
                         padding: 5px 5px;
                     }
@@ -38,10 +53,18 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
-      }
-      
-      .button:hover {
+    }
+
+    .add-btn {
+        float: right;
+    }
+    
+    .button:hover {
         background-color: #1976d2;
-      }
+    }
+    .no-data {
+        width: 100%;
+        display: inline-block;
+    }
 }
 @import "../../theme.variable.scss";

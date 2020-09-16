@@ -13,7 +13,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { ProductsEffects } from './store/products/products.effects';
-import { AccessEffects } from './store/user-access/auth.effects';
+import { AccessEffects } from './store/user-access/user.effects';
 
 @NgModule({
   declarations: [
