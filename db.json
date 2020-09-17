@@ -83,6 +83,12 @@
       "username": "test1234@gmail.com",
       "password": "test@123",
       "id": 5
+    },
+    {
+      "name": "Pooja",
+      "username": "test@user.com",
+      "password": "test@123",
+      "id": 6
     }
   ]
 }

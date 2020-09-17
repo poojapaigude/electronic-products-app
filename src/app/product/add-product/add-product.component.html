@@ -1,7 +1,7 @@
 <app-header [displayLoginUser]="true" (changedTheme)='changedTheme($event)'></app-header>
 <div class="container-header" [ngClass]="isDarkTheme ? 'dark-theme' : 'light-theme'">
     <div>
-        <h4 class="add-product">Add Product</h4>
+        <h4 class="add-product">{{pageTitle}}</h4>
         <button class="button" aria-label="Go to listing" (click)="gotolisting()">
             Back
         </button>

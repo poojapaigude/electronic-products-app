@@ -24,7 +24,7 @@ export class AddProductComponent implements OnInit {
   product: { id?: number; productName: string; description: string; category: string; };
   productId: number = null;
   isDarkTheme = false;
-
+  pageTitle: string = 'Add Product';
   constructor(
     private router: Router,
     private store: Store<AppState>,
@@ -34,6 +34,7 @@ export class AddProductComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.route.snapshot.params && this.route.snapshot.params.id) {
+      this.pageTitle = 'Update Product';
       this.productId = this.route.snapshot.params.id;
       this.productsService.getProduct(this.productId).subscribe((data: Products) => {
         if (data) {
