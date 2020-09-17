@@ -49,7 +49,7 @@ describe('ProductsService', () => {
     expect(proservice).toBeTruthy();
   });
 
-  it('create: should create a quote and return the created quote', () => {
+  it('create: should create a products and return the created products', () => {
     const obj = {
       id: 3,
       productName: 'Dell Inspiron 2',
@@ -58,13 +58,13 @@ describe('ProductsService', () => {
     };
     service.addProducts(obj).subscribe((products) => {
       expect(products).toBeDefined();
-      const req = httpMock.expectOne('http://localhost:3000/quotes');
+      const req = httpMock.expectOne('http://localhost:3000/productss');
       req.flush(data);
       httpMock.verify();
     });
   });
 
-  it('editProduct: should create a quote and return the created quote', () => {
+  it('editProduct: should create a products and return the created products', () => {
     const obj = {
       id: 3,
       productName: 'Dell Inspiron 2',
@@ -73,7 +73,7 @@ describe('ProductsService', () => {
     };
     service.editProduct(obj).subscribe((products) => {
       expect(products).toBeDefined();
-      const req = httpMock.expectOne('http://localhost:3000/quotes');
+      const req = httpMock.expectOne('http://localhost:3000/productss');
       req.flush(data);
       httpMock.verify();
     });
