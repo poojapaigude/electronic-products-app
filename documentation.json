@@ -3,10 +3,10 @@
     "interfaces": [
         {
             "name": "AppState",
-            "id": "interface-AppState-9491b609e49cdcaf1b7f560e254f3dec",
+            "id": "interface-AppState-f5694c468e369c6d9196564587edae31",
             "file": "src/app/store/app.state.ts",
             "type": "interface",
-            "sourceCode": "import { createFeatureSelector } from '@ngrx/store';\nimport { Products } from '../shared/models/products';\nimport * as product from './products/prodcuts.reducer';\nimport * as access from './user-access/auth.reducers';\n\nexport interface AppState {\n    authState: access.State;\n    product: Products[];\n}\n\nexport const reducers = {\n    auth: access.reducer,\n    product: product.reducer\n};\n\nexport const productState = createFeatureSelector<AppState>('product');\nexport const accesState = createFeatureSelector<AppState>('access');\n",
+            "sourceCode": "import { createFeatureSelector } from '@ngrx/store';\nimport { Products } from '../shared/models/products';\nimport * as product from './products/prodcuts.reducer';\nimport * as access from './user-access/user.reducers';\n\nexport interface AppState {\n    authState: access.State;\n    product: Products[];\n}\n\nexport const reducers = {\n    auth: access.reducer,\n    product: product.reducer\n};\n\nexport const productState = createFeatureSelector<AppState>('product');\nexport const accesState = createFeatureSelector<AppState>('access');\n",
             "properties": [
                 {
                     "name": "authState",
@@ -69,13 +69,13 @@
         },
         {
             "name": "ProductsState",
-            "id": "interface-ProductsState-6c8c937c70d20cf54dd95f393451a8d8",
+            "id": "interface-ProductsState-a14f02f0f32e7a90328481468c83548d",
             "file": "src/app/store/products/product.state.ts",
             "type": "interface",
-            "sourceCode": "import { Products } from 'src/app/shared/models/products';\n\nexport interface ProductsState {\n    readonly quotes: Products[];\n}\n",
+            "sourceCode": "import { Products } from 'src/app/shared/models/products';\n\nexport interface ProductsState {\n    readonly products: Products[];\n}\n",
             "properties": [
                 {
-                    "name": "quotes",
+                    "name": "products",
                     "type": "Products[]",
                     "optional": false,
                     "description": "",
@@ -92,7 +92,7 @@
         {
             "name": "State",
             "id": "interface-State-8d95876e64aab51bc8ef182cb17184a1",
-            "file": "src/app/store/user-access/auth.reducers.ts",
+            "file": "src/app/store/user-access/user.reducers.ts",
             "type": "interface",
             "sourceCode": "import { User } from 'src/app/shared/models/User';\nimport { AuthAction, AuthActionTypes } from './user.actions';\n\nexport interface State {\n  user: User | null;\n}\n\nexport const initialState: State = {\n  user: null,\n};\nexport function reducer(state = initialState, action: AuthAction): State {\n  switch (action.type) {\n    case AuthActionTypes.SIGNUP_SUCCESS: {\n      return {\n        ...state,\n        user: action.payload,\n      };\n    }\n    case AuthActionTypes.SIGNUP_FAILURE: {\n      return {\n        ...state,\n      };\n    }\n    case AuthActionTypes.LOGIN_FAIL: {\n      return {\n        ...state,\n      };\n    }\n    case AuthActionTypes.LOGOUT: {\n      return initialState;\n    }\n    case AuthActionTypes.LOGIN_SUCCESS: {\n      return {\n        ...state,\n        user: {\n          name: action.payload.name,\n          username: action.payload.username,\n          password: action.payload.password\n        },\n      };\n    }\n    default: {\n      return state;\n    }\n  }\n}\n",
             "properties": [
@@ -174,8 +174,8 @@
     "injectables": [
         {
             "name": "AccessEffects",
-            "id": "injectable-AccessEffects-80997a43cf64b9dc23600c3ea993871f",
-            "file": "src/app/store/user-access/auth.effects.ts",
+            "id": "injectable-AccessEffects-bade767feedb894cdd287590c1419278",
+            "file": "src/app/store/user-access/user.effects.ts",
             "properties": [
                 {
                     "name": "LogIn",
@@ -278,7 +278,7 @@
             ],
             "methods": [],
             "description": "",
-            "sourceCode": "import { Injectable } from '@angular/core';\nimport { Router } from '@angular/router';\nimport { Actions, Effect, ofType } from '@ngrx/effects';\nimport { Observable } from 'rxjs';\nimport { map, switchMap, tap } from 'rxjs/operators';\nimport { UserAccessService } from 'src/app/services/user-access.service';\nimport {\n  AuthActionTypes,\n  LogIn,\n  LogInFail,\n  LogInSuccess,\n  SignUp,\n  SignUpSuccess,\n} from './user.actions';\n\n@Injectable()\nexport class AccessEffects {\n  constructor(\n    private actions: Actions,\n    private userAccessService: UserAccessService,\n    private router: Router\n  ) { }\n\n  @Effect({ dispatch: false })\n  LogInSuccess: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGIN_SUCCESS),\n    tap((user) => {\n      localStorage.setItem('user', JSON.stringify(user.payload));\n      localStorage.setItem('isUserLoggedIn', 'true');\n      this.router.navigateByUrl('/');\n    })\n  );\n  \n  @Effect({ dispatch: false })\n  LogInFail: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGIN_FAIL),\n    tap((user) => {\n      return;\n    })\n  );\n\n  @Effect()\n  LogIn: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGIN),\n    map((action: LogIn) => action.payload),\n    switchMap((payload) => {\n      return this.userAccessService.login(payload).pipe(\n        map((user) => {\n          if (user.length > 0) {\n            let name = null;\n            const idx = user.findIndex(el => el.username === payload.username);\n            if (idx !== -1) {\n              name = user[idx].name;\n              return new LogInSuccess({ username: name });\n            }\n          } else {\n            if (localStorage.getItem('isUserLoggedIn') === 'true') {\n              localStorage.removeItem('isUserLoggedIn');\n            }\n            return new LogInFail('Login Fail');\n          }\n        })\n      );\n    })\n  );\n\n  @Effect({ dispatch: false })\n  SignUpFailure: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.SIGNUP_FAILURE),\n    tap((user) => { })\n  );\n\n  @Effect()\n  SignUp: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.SIGNUP),\n    map((action: SignUp) => action.payload),\n    switchMap((payload) => {\n      return this.userAccessService.signUp(payload).pipe(\n        map((data) => {\n          return new SignUpSuccess(data);\n        })\n      );\n    })\n  );\n  @Effect({ dispatch: false })\n  SignUpSuccess: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.SIGNUP_SUCCESS),\n    tap((user) => {\n      this.router.navigateByUrl('login');\n    })\n  );\n\n  @Effect({ dispatch: false })\n  Logout: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGOUT),\n    tap((user) => {\n      if (localStorage.getItem('isUserLoggedIn') === 'true') {\n        localStorage.removeItem('isUserLoggedIn');\n      }\n      localStorage.removeItem('user');\n    })\n  );\n}\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\nimport { Router } from '@angular/router';\nimport { Actions, Effect, ofType } from '@ngrx/effects';\nimport { Observable } from 'rxjs';\nimport { map, switchMap, tap } from 'rxjs/operators';\nimport { UserAccessService } from 'src/app/services/user-access.service';\nimport {\n  AuthActionTypes,\n  LogIn,\n  LogInFail,\n  LogInSuccess,\n  SignUp,\n  SignUpSuccess,\n} from './user.actions';\n\n@Injectable()\nexport class AccessEffects {\n  constructor(\n    private actions: Actions,\n    private userAccessService: UserAccessService,\n    private router: Router\n  ) { }\n\n  @Effect({ dispatch: false })\n  LogInSuccess: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGIN_SUCCESS),\n    tap((user) => {\n      localStorage.setItem('user', JSON.stringify(user.payload));\n      localStorage.setItem('isUserLoggedIn', 'true');\n      this.router.navigateByUrl('/');\n    })\n  );\n\n  @Effect({ dispatch: false })\n  LogInFail: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGIN_FAIL),\n    tap((user) => {\n      return;\n    })\n  );\n\n  @Effect()\n  LogIn: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGIN),\n    map((action: LogIn) => action.payload),\n    switchMap((payload) => {\n      return this.userAccessService.login(payload).pipe(\n        map((user) => {\n          if (user.length > 0) {\n            let name = null;\n            const idx = user.findIndex(el => el.username === payload.username);\n            if (idx !== -1) {\n              name = user[idx].name;\n              return new LogInSuccess({ username: name });\n            }\n          } else {\n            if (localStorage.getItem('isUserLoggedIn') === 'true') {\n              localStorage.removeItem('isUserLoggedIn');\n            }\n            return new LogInFail('Login Fail');\n          }\n        })\n      );\n    })\n  );\n\n  @Effect({ dispatch: false })\n  SignUpFailure: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.SIGNUP_FAILURE),\n    tap((user) => { })\n  );\n\n  @Effect()\n  SignUp: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.SIGNUP),\n    map((action: SignUp) => action.payload),\n    switchMap((payload) => {\n      return this.userAccessService.signUp(payload).pipe(\n        map((data) => {\n          return new SignUpSuccess(data);\n        })\n      );\n    })\n  );\n  @Effect({ dispatch: false })\n  SignUpSuccess: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.SIGNUP_SUCCESS),\n    tap((user) => {\n      this.router.navigateByUrl('login');\n    })\n  );\n\n  @Effect({ dispatch: false })\n  Logout: Observable<any> = this.actions.pipe(\n    ofType(AuthActionTypes.LOGOUT),\n    tap((user) => {\n      if (localStorage.getItem('isUserLoggedIn') === 'true') {\n        localStorage.removeItem('isUserLoggedIn');\n      }\n      localStorage.removeItem('user');\n    })\n  );\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1735,7 +1735,7 @@
         },
         {
             "name": "ElectronicsListingComponent",
-            "id": "component-ElectronicsListingComponent-3cc39c894508e788e8c85e5ee19bacc2",
+            "id": "component-ElectronicsListingComponent-39e2ad959cb055290da32ea7b4cca580",
             "file": "src/app/product/electronics-listing/electronics-listing.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1891,7 +1891,7 @@
             "description": "",
             "rawdescription": "",
             "type": "component",
-            "sourceCode": "import { Component, OnInit } from '@angular/core';\nimport { Store } from '@ngrx/store';\nimport { Observable } from 'rxjs';\nimport { Router } from '@angular/router';\nimport { Products } from 'src/app/shared/models/products';\nimport { AppState } from 'src/app/store/app.state';\nimport { GetProducts, DeleteProduct } from 'src/app/store/products/products.actions';\n\n@Component({\n  selector: 'app-electronics-listing',\n  templateUrl: './electronics-listing.component.html',\n  styleUrls: ['./electronics-listing.component.scss']\n})\nexport class ElectronicsListingComponent implements OnInit {\n  prducts: Products[];\n  searchString: string = null;\n  getState: Observable<Products[]> = this.store.select(state => state.product);\n  isUserAuthenticated = false;\n  nodatamsg = true;\n  isDarkTheme = false;\n  \n  constructor(\n    private store: Store<AppState>,\n    private router: Router) {\n  }\n\n  ngOnInit(): void {\n    this.store.dispatch(new GetProducts());\n    this.store.subscribe((data: any) => {\n      this.prducts = data.product.products;\n      if (this.prducts.length > 0) {\n        this.nodatamsg = false;\n      } else {\n        this.nodatamsg = true;\n      }\n    });\n    if (localStorage.getItem('isUserLoggedIn') === 'true') {\n      this.isUserAuthenticated = true;\n    } else {\n      this.router.navigate(['/']);\n    }\n  }\n\n  addProduct(): void {\n    this.router.navigate(['/add']);\n  }\n\n  deleteProduct(id: number): void {\n    const confirmation = window.confirm(\n      'Are you sure you want to delete this product?'\n    );\n    if (confirmation) {\n      this.store.dispatch(new DeleteProduct(id));\n      this.store.dispatch(new GetProducts());\n    }\n  }\n\n  editAction(id): void {\n    this.router.navigateByUrl('edit/' + id);\n  }\n \n  changedTheme(theme): void {\n    this.isDarkTheme = theme;\n  }\n}\n",
+            "sourceCode": "import { Component, OnInit } from '@angular/core';\nimport { Store } from '@ngrx/store';\nimport { Observable } from 'rxjs';\nimport { Router } from '@angular/router';\nimport { Products } from 'src/app/shared/models/products';\nimport { AppState } from 'src/app/store/app.state';\nimport { GetProducts, DeleteProduct } from 'src/app/store/products/products.actions';\n\n@Component({\n  selector: 'app-electronics-listing',\n  templateUrl: './electronics-listing.component.html',\n  styleUrls: ['./electronics-listing.component.scss']\n})\nexport class ElectronicsListingComponent implements OnInit {\n  prducts: Products[];\n  searchString: string = null;\n  getState: Observable<Products[]> = this.store.select(state => state.product);\n  isUserAuthenticated = false;\n  nodatamsg = true;\n  isDarkTheme = false;\n\n  constructor(\n    private store: Store<AppState>,\n    private router: Router) {\n  }\n\n  ngOnInit(): void {\n    this.store.dispatch(new GetProducts());\n    this.store.subscribe((data: any) => {\n      this.prducts = data.product.products;\n      if (this.prducts.length > 0) {\n        this.nodatamsg = false;\n      } else {\n        this.nodatamsg = true;\n      }\n    });\n    if (localStorage.getItem('isUserLoggedIn') === 'true') {\n      this.isUserAuthenticated = true;\n    } else {\n      this.router.navigate(['/']);\n    }\n  }\n\n  addProduct(): void {\n    this.router.navigate(['/add']);\n  }\n\n  deleteProduct(id: number): void {\n    const confirmation = window.confirm(\n      'Are you sure you want to delete this product?'\n    );\n    if (confirmation) {\n      this.store.dispatch(new DeleteProduct(id));\n      this.store.dispatch(new GetProducts());\n    }\n  }\n\n  editAction(id): void {\n    this.router.navigateByUrl('edit/' + id);\n  }\n\n  changedTheme(theme): void {\n    this.isDarkTheme = theme;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -2192,7 +2192,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": "* {\r\n    box-sizing: border-box;\r\n  }\r\n  \r\n  /* style the container */\r\n  .container {\r\n    position: relative;\r\n    border-radius: 5px;\r\n    background-color: #ffffff;\r\n    padding: 20px 0 30px 0;\r\n    width: 40%;\r\n    margin: auto;\r\n  } \r\n\r\n  .login {\r\n      width: 100% !important;\r\n      input {\r\n        border: 1px solid #8cb8e2 !important;\r\n      }\r\n  }\r\n\r\n  h2 {\r\n    text-align: center;\r\n  }\r\n\r\n  .login-btn {\r\n    width: 100%;\r\n    height: 49px;\r\n    background: green;\r\n    border: 1px solid green;\r\n    color: white;\r\n    font-size: 16px;\r\n  }\r\n\r\n  \r\n  /* style inputs and link buttons */\r\n  input,\r\n  .btn {\r\n    width: 100%;\r\n    color:white;\r\n    padding: 12px;\r\n    border: none;\r\n    border-radius: 4px;\r\n    margin: 5px 0;\r\n    opacity: 0.85;\r\n    display: inline-block;\r\n    font-size: 17px;\r\n    line-height: 20px;\r\n    text-decoration: none; /* remove underline from anchors */\r\n  }\r\n  \r\n  input:hover,\r\n  .btn:hover {\r\n    opacity: 1;\r\n  }\r\n  \r\n  /* style the submit button */\r\n  input[type=submit] {\r\n    background-color: #4CAF50;\r\n    color: white;\r\n    cursor: pointer;\r\n  }\r\n  \r\n  input[type=submit]:hover {\r\n    background-color: #45a049;\r\n  }\r\n  \r\n  /* Two-column layout */\r\n  .col {\r\n    float: left;\r\n    width: 50%;\r\n    margin: auto;\r\n    padding: 0 50px;\r\n    margin-top: 6px;\r\n  }\r\n  \r\n  /* Clear floats after the columns */\r\n  .row:after {\r\n    content: \"\";\r\n    display: table;\r\n    clear: both;\r\n  }\r\n  \r\n  /* vertical line */\r\n  .vl {\r\n    position: absolute;\r\n    left: 50%;\r\n    transform: translate(-50%);\r\n    border: 2px solid #ddd;\r\n    height: 175px;\r\n  }\r\n  \r\n  /* text inside the vertical line */\r\n  .vl-innertext {\r\n    position: absolute;\r\n    top: 50%;\r\n    transform: translate(-50%, -50%);\r\n    background-color: #f1f1f1;\r\n    border: 1px solid #ccc;\r\n    border-radius: 50%;\r\n    padding: 8px 10px;\r\n  }\r\n  \r\n  /* hide some text on medium and large screens */\r\n  .hide-md-lg {\r\n    display: none;\r\n  }\r\n  \r\n  /* bottom container */\r\n  .bottom-container {\r\n    text-align: center;\r\n    background-color: #1976d2;\r\n    border-radius: 0px 0px 4px 4px;\r\n    width: 40%;\r\n    margin: auto;\r\n  }\r\n\r\n  .forget-btn {\r\n      a {\r\n          opacity: 0.5;\r\n          cursor: not-allowed;\r\n      }\r\n  }\r\n\r\n  .error {\r\n    color: red;\r\n  }\r\n  \r\n  /* Responsive layout - when the screen is less than 650px wide, make the two columns stack on top of each other instead of next to each other */\r\n  @media screen and (max-width: 650px) {\r\n    .col {\r\n      width: 100%;\r\n      margin-top: 0;\r\n    }\r\n    /* hide the vertical line */\r\n    .vl {\r\n      display: none;\r\n    }\r\n    /* show the hidden text on small screens */\r\n    .hide-md-lg {\r\n      display: block;\r\n      text-align: center;\r\n    }\r\n  }\r\n  @import \"../theme.variable.scss\";\r\n",
+                    "data": "* {\r\n    box-sizing: border-box;\r\n  }\r\n  \r\n  /* style the container */\r\n  .container {\r\n    position: relative;\r\n    border-radius: 5px;\r\n    background-color: #ffffff;\r\n    padding: 20px 0 30px 0;\r\n    width: 40%;\r\n    margin: auto;\r\n  } \r\n\r\n  .login {\r\n      width: 100% !important;\r\n      input {\r\n        color: #000000 !important;\r\n        border: 1px solid #8cb8e2 !important;\r\n      }\r\n  }\r\n\r\n  h2 {\r\n    text-align: center;\r\n  }\r\n\r\n  .login-btn {\r\n    width: 100%;\r\n    height: 49px;\r\n    background: green;\r\n    border: 1px solid green;\r\n    color: white;\r\n    font-size: 16px;\r\n  }\r\n\r\n  \r\n  /* style inputs and link buttons */\r\n  input,\r\n  .btn {\r\n    width: 100%;\r\n    color:white;\r\n    padding: 12px;\r\n    border: none;\r\n    border-radius: 4px;\r\n    margin: 5px 0;\r\n    opacity: 0.85;\r\n    display: inline-block;\r\n    font-size: 17px;\r\n    line-height: 20px;\r\n    text-decoration: none; /* remove underline from anchors */\r\n  }\r\n  \r\n  input:hover,\r\n  .btn:hover {\r\n    opacity: 1;\r\n  }\r\n  \r\n  /* style the submit button */\r\n  input[type=submit] {\r\n    background-color: #4CAF50;\r\n    color: white;\r\n    cursor: pointer;\r\n  }\r\n  \r\n  input[type=submit]:hover {\r\n    background-color: #45a049;\r\n  }\r\n  \r\n  /* Two-column layout */\r\n  .col {\r\n    float: left;\r\n    width: 50%;\r\n    margin: auto;\r\n    padding: 0 50px;\r\n    margin-top: 6px;\r\n  }\r\n  \r\n  /* Clear floats after the columns */\r\n  .row:after {\r\n    content: \"\";\r\n    display: table;\r\n    clear: both;\r\n  }\r\n  \r\n  /* vertical line */\r\n  .vl {\r\n    position: absolute;\r\n    left: 50%;\r\n    transform: translate(-50%);\r\n    border: 2px solid #ddd;\r\n    height: 175px;\r\n  }\r\n  \r\n  /* text inside the vertical line */\r\n  .vl-innertext {\r\n    position: absolute;\r\n    top: 50%;\r\n    transform: translate(-50%, -50%);\r\n    background-color: #f1f1f1;\r\n    border: 1px solid #ccc;\r\n    border-radius: 50%;\r\n    padding: 8px 10px;\r\n  }\r\n  \r\n  /* hide some text on medium and large screens */\r\n  .hide-md-lg {\r\n    display: none;\r\n  }\r\n  \r\n  /* bottom container */\r\n  .bottom-container {\r\n    text-align: center;\r\n    background-color: #1976d2;\r\n    border-radius: 0px 0px 4px 4px;\r\n    width: 40%;\r\n    margin: auto;\r\n  }\r\n\r\n  .forget-btn {\r\n      a {\r\n          opacity: 0.5;\r\n          cursor: not-allowed;\r\n      }\r\n  }\r\n\r\n  .error {\r\n    color: red;\r\n  }\r\n  \r\n  /* Responsive layout - when the screen is less than 650px wide, make the two columns stack on top of each other instead of next to each other */\r\n  @media screen and (max-width: 650px) {\r\n    .col {\r\n      width: 100%;\r\n      margin-top: 0;\r\n    }\r\n    /* hide the vertical line */\r\n    .vl {\r\n      display: none;\r\n    }\r\n    /* show the hidden text on small screens */\r\n    .hide-md-lg {\r\n      display: block;\r\n      text-align: center;\r\n    }\r\n  }\r\n  @import \"../theme.variable.scss\";\r\n",
                     "styleUrl": "./login.component.scss"
                 }
             ],
@@ -2220,7 +2220,7 @@
             "implements": [
                 "OnInit"
             ],
-            "templateData": "<app-header [displayLoginUser]=\"displayLoginUser\" (changedTheme)='changedTheme($event)'></app-header>\n<div class=\"container\" [ngClass]=\"isDarkTheme ? 'dark-theme' : 'light-theme'\">\n    <form [formGroup]=\"loginForm\" (ngSubmit)=\"login()\">\n        <div class=\"row\">\n            <h2>Login</h2>\n            <div class=\"col login\">\n                <input tabindex=\"4\" type=\"email\" formControlName=\"username\" placeholder=\"Username\" required>\n                \n                <input tabindex=\"5\" type=\"password\" formControlName=\"password\" placeholder=\"Password\" required>\n                \n                <label *ngIf=\"invalid\" [ngClass] = \"'error'\"> Please Enter Valid Email/Password </label>\n                <button class=\"login-btn\" tabindex=\"6\" type=\"submit\">Login</button>\n            </div>\n        </div>\n    </form>\n</div>\n\n<div class=\"bottom-container\">\n    <div class=\"row\">\n        <div tabindex=\"7\" class=\"col\">\n            <a href=\"/\" class=\"btn\">Cancel</a>\n        </div>\n        <div tabindex=\"8\"  class=\"col\">\n            <a [routerLink]=\"['/register']\" class=\"btn\">Sign up</a>\n        </div>\n    </div>\n</div>"
+            "templateData": "<app-header [displayLoginUser]=\"displayLoginUser\" (changedTheme)='changedTheme($event)'></app-header>\n<div class=\"container\" [ngClass]=\"isDarkTheme ? 'dark-theme' : 'light-theme'\">\n    <form [formGroup]=\"loginForm\" (ngSubmit)=\"login()\">\n        <div class=\"row\">\n            <h2>Login</h2>\n            <div class=\"col login\">\n                <input tabindex=\"4\" type=\"email\" formControlName=\"username\" placeholder=\"Username\" required>\n                <input tabindex=\"5\" type=\"password\" formControlName=\"password\" placeholder=\"Password\" required>\n                <label *ngIf=\"invalid\" [ngClass] = \"'error'\"> Please Enter Valid Email/Password </label>\n                <button class=\"login-btn\" tabindex=\"6\" type=\"submit\">Login</button>\n            </div>\n        </div>\n    </form>\n</div>\n\n<div class=\"bottom-container\">\n    <div class=\"row\">\n        <div tabindex=\"7\" class=\"col\">\n            <a href=\"/\" class=\"btn\">Cancel</a>\n        </div>\n        <div tabindex=\"8\"  class=\"col\">\n            <a [routerLink]=\"['/register']\" class=\"btn\">Sign up</a>\n        </div>\n    </div>\n</div>"
         },
         {
             "name": "RegisterComponent",
@@ -2562,6 +2562,14 @@
                 "defaultValue": "'[PRODUCTS] DELETE PRODUCTS SUCCESS'"
             },
             {
+                "name": "dummyData",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/electronics-listing.stories.ts",
+                "type": "[]",
+                "defaultValue": "[\r\n    {\r\n        'id': 1,\r\n        'productName': 'Dell Inspiron',\r\n        'description': 'Dell Inspiron 3493 14-inch FHD Laptop (10th Gen Ci5-1035G1/8GB/1TB HDD/Win 10 + MS Office/Intel HD Graphics/Silver) E-C560511WIN9',\r\n        'category': 'Laptops'\r\n    },\r\n    {\r\n        'id': 2,\r\n        'productName': 'Apple iPhone 11',\r\n        'description': '6.1-inch (15.5 cm) Liquid Retina HD LCD display (64GB) - (Product) RED',\r\n        'category': 'Cell Phones'\r\n    }\r\n]"
+            },
+            {
                 "name": "EDIT_PRODUCTS",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2613,7 +2621,7 @@
                 "name": "initialState",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/store/user-access/auth.reducers.ts",
+                "file": "src/app/store/user-access/user.reducers.ts",
                 "type": "State",
                 "defaultValue": "{\n  user: null,\n}"
             },
@@ -2663,7 +2671,7 @@
                 "subtype": "variable",
                 "file": "src/stories/app.stories.ts",
                 "type": "Story<AppComponent>",
-                "defaultValue": "(args: AppComponent) => ({\r\n    component: AppComponent,\r\n    templateUrl: '../app/app.component.html',\r\n    styleUrls: ['../app/app.component.scss'],\r\n    moduleMetadata: {\r\n        declarations: [\r\n            AppComponent,\r\n        ],\r\n        imports: [\r\n            BrowserModule,\r\n            AppRoutingModule,\r\n            ReactiveFormsModule,\r\n            FormsModule,\r\n            HttpClientModule,\r\n            StoreModule.forRoot(reducers, {}),\r\n            EffectsModule.forRoot([ProductsEffects, AccessEffects]),\r\n        ],\r\n        providers: [{ provide: APP_BASE_HREF, useValue: '/' }],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n    },\r\n    props: { args },\r\n})"
+                "defaultValue": "(args: AppComponent) => ({\r\n    component: AppComponent,\r\n    moduleMetadata: {\r\n        declarations: [\r\n            AppComponent,\r\n            ElectronicsListingComponent,\r\n            AddProductComponent,\r\n            LoginComponent,\r\n            RegisterComponent,\r\n            HeaderComponent        ],\r\n        imports: [\r\n            BrowserModule,\r\n            AppRoutingModule,\r\n            ReactiveFormsModule,\r\n            FormsModule,\r\n            HttpClientModule,\r\n            StoreModule.forRoot(reducers, {}),\r\n            EffectsModule.forRoot([ProductsEffects, AccessEffects]),\r\n        ],\r\n        providers: [{ provide: APP_BASE_HREF, useValue: '/' }],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n    },\r\n    props: { args },\r\n})"
             },
             {
                 "name": "Template",
@@ -2671,7 +2679,7 @@
                 "subtype": "variable",
                 "file": "src/stories/electronics-listing.stories.ts",
                 "type": "Story<ElectronicsListingComponent>",
-                "defaultValue": "(args: ElectronicsListingComponent) => ({\r\n    component: ElectronicsListingComponent,\r\n    moduleMetadata: {\r\n        imports: [\r\n            FormsModule,\r\n            ReactiveFormsModule,\r\n            RouterTestingModule,\r\n        ],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n        declarations: [ElectronicsListingComponent],\r\n        providers: [provideMockStore({})],\r\n    },\r\n    props: { ...args },\r\n})"
+                "defaultValue": "(args: ElectronicsListingComponent) => ({\r\n    component: ElectronicsListingComponent,\r\n    moduleMetadata: {\r\n        imports: [\r\n            FormsModule,\r\n            ReactiveFormsModule,\r\n            RouterTestingModule,\r\n        ],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n        declarations: [ElectronicsListingComponent],\r\n        providers: [provideMockStore({})],\r\n    },\r\n    props: { ...args, prducts: dummyData },\r\n})"
             },
             {
                 "name": "Template",
@@ -2701,7 +2709,7 @@
         "functions": [
             {
                 "name": "reducer",
-                "file": "src/app/store/user-access/auth.reducers.ts",
+                "file": "src/app/store/user-access/user.reducers.ts",
                 "ctype": "miscellaneous",
                 "subtype": "function",
                 "description": "",
@@ -2929,7 +2937,7 @@
                     "subtype": "variable",
                     "file": "src/stories/app.stories.ts",
                     "type": "Story<AppComponent>",
-                    "defaultValue": "(args: AppComponent) => ({\r\n    component: AppComponent,\r\n    templateUrl: '../app/app.component.html',\r\n    styleUrls: ['../app/app.component.scss'],\r\n    moduleMetadata: {\r\n        declarations: [\r\n            AppComponent,\r\n        ],\r\n        imports: [\r\n            BrowserModule,\r\n            AppRoutingModule,\r\n            ReactiveFormsModule,\r\n            FormsModule,\r\n            HttpClientModule,\r\n            StoreModule.forRoot(reducers, {}),\r\n            EffectsModule.forRoot([ProductsEffects, AccessEffects]),\r\n        ],\r\n        providers: [{ provide: APP_BASE_HREF, useValue: '/' }],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n    },\r\n    props: { args },\r\n})"
+                    "defaultValue": "(args: AppComponent) => ({\r\n    component: AppComponent,\r\n    moduleMetadata: {\r\n        declarations: [\r\n            AppComponent,\r\n            ElectronicsListingComponent,\r\n            AddProductComponent,\r\n            LoginComponent,\r\n            RegisterComponent,\r\n            HeaderComponent        ],\r\n        imports: [\r\n            BrowserModule,\r\n            AppRoutingModule,\r\n            ReactiveFormsModule,\r\n            FormsModule,\r\n            HttpClientModule,\r\n            StoreModule.forRoot(reducers, {}),\r\n            EffectsModule.forRoot([ProductsEffects, AccessEffects]),\r\n        ],\r\n        providers: [{ provide: APP_BASE_HREF, useValue: '/' }],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n    },\r\n    props: { args },\r\n})"
                 }
             ],
             "src/stories/add-product.stories.ts": [
@@ -2960,12 +2968,20 @@
                     "defaultValue": "Template.bind({})"
                 },
                 {
+                    "name": "dummyData",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/electronics-listing.stories.ts",
+                    "type": "[]",
+                    "defaultValue": "[\r\n    {\r\n        'id': 1,\r\n        'productName': 'Dell Inspiron',\r\n        'description': 'Dell Inspiron 3493 14-inch FHD Laptop (10th Gen Ci5-1035G1/8GB/1TB HDD/Win 10 + MS Office/Intel HD Graphics/Silver) E-C560511WIN9',\r\n        'category': 'Laptops'\r\n    },\r\n    {\r\n        'id': 2,\r\n        'productName': 'Apple iPhone 11',\r\n        'description': '6.1-inch (15.5 cm) Liquid Retina HD LCD display (64GB) - (Product) RED',\r\n        'category': 'Cell Phones'\r\n    }\r\n]"
+                },
+                {
                     "name": "Template",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "src/stories/electronics-listing.stories.ts",
                     "type": "Story<ElectronicsListingComponent>",
-                    "defaultValue": "(args: ElectronicsListingComponent) => ({\r\n    component: ElectronicsListingComponent,\r\n    moduleMetadata: {\r\n        imports: [\r\n            FormsModule,\r\n            ReactiveFormsModule,\r\n            RouterTestingModule,\r\n        ],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n        declarations: [ElectronicsListingComponent],\r\n        providers: [provideMockStore({})],\r\n    },\r\n    props: { ...args },\r\n})"
+                    "defaultValue": "(args: ElectronicsListingComponent) => ({\r\n    component: ElectronicsListingComponent,\r\n    moduleMetadata: {\r\n        imports: [\r\n            FormsModule,\r\n            ReactiveFormsModule,\r\n            RouterTestingModule,\r\n        ],\r\n        schemas: [CUSTOM_ELEMENTS_SCHEMA],\r\n        declarations: [ElectronicsListingComponent],\r\n        providers: [provideMockStore({})],\r\n    },\r\n    props: { ...args, prducts: dummyData },\r\n})"
                 }
             ],
             "src/stories/header.stories.ts": [
@@ -3060,12 +3076,12 @@
                     "defaultValue": "'products'"
                 }
             ],
-            "src/app/store/user-access/auth.reducers.ts": [
+            "src/app/store/user-access/user.reducers.ts": [
                 {
                     "name": "initialState",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/store/user-access/auth.reducers.ts",
+                    "file": "src/app/store/user-access/user.reducers.ts",
                     "type": "State",
                     "defaultValue": "{\n  user: null,\n}"
                 }
@@ -3082,10 +3098,10 @@
             ]
         },
         "groupedFunctions": {
-            "src/app/store/user-access/auth.reducers.ts": [
+            "src/app/store/user-access/user.reducers.ts": [
                 {
                     "name": "reducer",
-                    "file": "src/app/store/user-access/auth.reducers.ts",
+                    "file": "src/app/store/user-access/user.reducers.ts",
                     "ctype": "miscellaneous",
                     "subtype": "function",
                     "description": "",
@@ -3615,43 +3631,6 @@
                 "status": "low"
             },
             {
-                "filePath": "src/app/store/user-access/auth.effects.ts",
-                "type": "injectable",
-                "linktype": "injectable",
-                "name": "AccessEffects",
-                "coveragePercent": 0,
-                "coverageCount": "0/9",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/store/user-access/auth.reducers.ts",
-                "type": "interface",
-                "linktype": "interface",
-                "name": "State",
-                "coveragePercent": 0,
-                "coverageCount": "0/2",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/store/user-access/auth.reducers.ts",
-                "type": "function",
-                "linksubtype": "function",
-                "name": "reducer",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/app/store/user-access/auth.reducers.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "initialState",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
                 "filePath": "src/app/store/user-access/user.actions.ts",
                 "type": "class",
                 "linktype": "classe",
@@ -3712,6 +3691,43 @@
                 "name": "SignUpSuccess",
                 "coveragePercent": 0,
                 "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/user-access/user.effects.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "AccessEffects",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/user-access/user.reducers.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "State",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/user-access/user.reducers.ts",
+                "type": "function",
+                "linksubtype": "function",
+                "name": "reducer",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/user-access/user.reducers.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "initialState",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {
@@ -3780,6 +3796,16 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/electronics-listing.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "dummyData",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

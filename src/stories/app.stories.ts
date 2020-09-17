@@ -26,8 +26,6 @@ export default {
 } as Meta;
 const Template: Story<AppComponent> = (args: AppComponent) => ({
     component: AppComponent,
-    templateUrl: '../app/app.component.html',
-    styleUrls: ['../app/app.component.scss'],
     moduleMetadata: {
         declarations: [
             AppComponent,
